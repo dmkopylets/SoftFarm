@@ -33,7 +33,6 @@ services:
       - GROUP_ID=${PGID}
     volumes:
       - ./api:/var/www/localhost/htdocs/api/
-      - ./api-docs:/var/www/localhost/htdocs/api-docs/
       - ./docker/logs:/var/www/logs/
       - ./docker/apache2/sites-enabled:/etc/apache2/sites-enabled/
       - ./docker/apache2/ssl:/etc/apache2/ssl/

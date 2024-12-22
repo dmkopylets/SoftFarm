@@ -16,11 +16,7 @@
 
 # Далі покроково запускаємо такі команди:
 
-make dc-build
-
-make dc-up
-
-make composer-i
+make local-build
 
 make migrate
 
