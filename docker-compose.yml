@@ -1,0 +1,44 @@
+services:
+  postgres:
+    container_name: ${PROJECT_NAME}-postgres
+    image: postgres:16.3-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: '${DB_PASSWORD}'
+      POSTGRES_HOST: '${DB_HOST}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./docker/db/data:/var/lib/postgresql/data:rw
+  php-apache:
+    container_name: ${PROJECT_NAME}-php-apache
+    build:
+      context: ./docker
+      args:
+        - PUID=${PUID:-1000}
+        - PGID=${PGID:-1000}
+    depends_on:
+      - postgres
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_SECRET=${APP_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - PHP_EXTENSION_XDEBUG=${XDEBUG_MODE}
+      - PHP_INI_DIR='/usr/local/etc/php'
+      - APACHE_LOG_DIR='/var/www/logs'
+      - USER_ID=${PUID}
+      - GROUP_ID=${PGID}
+    volumes:
+      - ./api:/var/www/localhost/htdocs/api/
+      - ./api-docs:/var/www/localhost/htdocs/api-docs/
+      - ./docker/logs:/var/www/logs/
+      - ./docker/apache2/sites-enabled:/etc/apache2/sites-enabled/
+      - ./docker/apache2/ssl:/etc/apache2/ssl/
+    ports:
+      - "80:80"
+      - "443:443"
+    extra_hosts:
+      - host.docker.internal:${HOST_IP:-172.17.0.1}
