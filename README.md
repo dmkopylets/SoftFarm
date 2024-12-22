@@ -43,13 +43,14 @@ https://api.local/api/product
 
 Стандартні маршрути для API такі:
 
- Name                                      Method      Scheme   Host   Path
+ Name _______________ Method ____Scheme __ Host __ Path
 
-product_index                             GET         ANY      ANY    /api/product                         
-product_create                            POST        ANY      ANY    /api/product                         
-product_show                              GET         ANY      ANY    /api/product/{id}                    
-product_update                            PUT|PATCH   ANY      ANY    /api/product/{id}                    
-product_delete                            DELETE      ANY      ANY    /api/product/{id}
- ----------------------------------------- ----------- -------- ------ ------------------------------------- 
+product_index _______ GET ________ ANY _____ ANY __   /api/product                         
+product_create ______ POST _______ ANY _____ ANY __   /api/product                         
+product_show ________ GET ________ ANY _____ ANY __   /api/product/{id}                    
+product_update ______ PUT|PATCH __ ANY _____ ANY __   /api/product/{id}                    
+product_delete ______ DELETE _____ ANY ______ ANY __   /api/product/{id}
+ ---
 
+![VideoManual](manuals%2FSetup_&_Run.mp4)
 
