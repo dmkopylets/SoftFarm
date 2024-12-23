@@ -17,28 +17,65 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/api')]
 class ProductController extends AbstractController
 {
-    #[Route('/product', name: 'product_index', methods:['get'])]
+    #[Route('/products', name: 'product_index', methods:['get'])]
     public function index(EntityManagerInterface $entityManager, PaginatorInterface $paginator, Request $request): JsonResponse
     {
-        $productsQuery = $entityManager
-            ->getRepository(Product::class)
-            ->createQueryBuilder('b')
-            ->select('b.id, b.title, b.quantity, b.price')
-            ->getQuery()
-            ->getArrayResult();
+        $queryBuilder = $entityManager->getRepository(Product::class)->createQueryBuilder('p');
 
+        // Отримання фільтрів з запиту
+        $title = $request->query->get('title');
+        $quantityMin = $request->query->getInt('quantity_min');
+        $quantityMax = $request->query->getInt('quantity_max');
+        $priceMin = $request->query->get('price_min');
+        $priceMax = $request->query->get('price_max');
+
+        // Додавання фільтрів до запиту
+        if ($title) {
+            $queryBuilder->andWhere('LOWER(p.title) LIKE LOWER(:title)')
+                ->setParameter('title', '%' . $title . '%');
+        }
+
+        if ($quantityMin !== null && $quantityMin !== '') {
+            $queryBuilder->andWhere('p.quantity >= :quantityMin')
+                ->setParameter('quantityMin', (int) $quantityMin);
+        }
+
+        if ($quantityMax !== null && $quantityMax !== '') {
+            $queryBuilder->andWhere('p.quantity <= :quantityMax')
+                ->setParameter('quantityMax', (int) $quantityMax);
+        }
+
+        if ($priceMin !== null) {
+            $queryBuilder->andWhere('p.price >= :priceMin')
+                ->setParameter('priceMin', (float) $priceMin);
+        }
+
+        if ($priceMax !== null) {
+            $queryBuilder->andWhere('p.price <= :priceMax')
+                ->setParameter('priceMax', (float) $priceMax);
+        }
+
+        // Отримуємо запит
+        $query = $queryBuilder->getQuery();
+
+        // Пагінація
         $page = $request->query->getInt('page', 1);
+        $products = $paginator->paginate($query, $page, 5);
 
-        $productList = $paginator->paginate(
-            $productsQuery,
-            $page,
-            5
-        );
+        // Форматування результату
+        $data = [
+            'items' => $products->getItems(),
+            'pagination' => [
+                'currentPage' => $products->getCurrentPageNumber(),
+                'itemsPerPage' => $products->getItemNumberPerPage(),
+                'totalItems' => $products->getTotalItemCount(),
+            ],
+        ];
 
-        return $this->json($productList);
+        return $this->json($data);
     }
 
-    #[Route('/product', name: 'product_create', methods:['post'])]
+    #[Route('/products', name: 'product_create', methods:['post'])]
     public function create(ValidatorInterface $validator, Request $request, EntityManagerInterface $entityManager): Response
     {
         $product = new Product();
@@ -57,7 +94,7 @@ class ProductController extends AbstractController
         return new Response('Успішно додано новий продукт з ID: '.$product->getId());
     }
 
-    #[Route('/product/{id}', name: 'product_show', methods:['get'])]
+    #[Route('/products/{id}', name: 'product_show', methods:['get'])]
     public function show(EntityManagerInterface $entityManager, int $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
@@ -76,7 +113,7 @@ class ProductController extends AbstractController
         return $this->json($data);
     }
 
-    #[Route('/product/{id}', name: 'product_update', methods:['put', 'patch'])]
+    #[Route('/products/{id}', name: 'product_update', methods:['put', 'patch'])]
     public function update(EntityManagerInterface $entityManager, Request $request, int $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
@@ -100,7 +137,7 @@ class ProductController extends AbstractController
         return $this->json($data);
     }
 
-    #[Route('/product/{id}', name: 'product_delete', methods:['delete'])]
+    #[Route('/products/{id}', name: 'product_delete', methods:['delete'])]
     public function delete(EntityManagerInterface $entityManager, int $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
@@ -112,6 +149,7 @@ class ProductController extends AbstractController
         $entityManager->remove($product);
         $entityManager->flush();
 
-        return $this->json('Deleted a product successfully with id ' . $id);
+        return $this->json('Deleted a product successfully with id ' . $id, 204,
+            ['Content-Type' => 'application/json']);
     }
 }

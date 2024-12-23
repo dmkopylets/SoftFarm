@@ -30,7 +30,7 @@ composer-i:
 	$(EXEC_PHP) sh -c "cd api; composer update"
 
 clear-cache:
-	$(EXEC_PHP) sh -c "cd api; rm -rf var/cache"
+	$(EXEC_PHP) sh -c "cd api; php bin/console cache:clear; rm -rf var/cache"
 
 migrate:
 	$(EXEC_PHP) sh -c "cd api;  php bin/console doctrine:migrations:migrate --no-interaction"

@@ -9,6 +9,10 @@
 3. Реалізувати RESTfull API за допомогою стандартних HTTP методів.
 4. Повинна бути валідація даних і можливість фільтрації.
 ---
+Відеомануал буде в папці manuals
+
+![VideoManual](manuals%2FSetup_&_Run.mp4)
+
 # Невелика документація щодо встановлення та запуску додатку
 будемо розглядати розгортання додатку у середовищі для розробника - або Linux або WSL (мають підтримуватися docker та docker-compose)
 
@@ -39,18 +43,36 @@ https://api.local/api/docs
 
 а взаємодіяти з API інтерфейсом "Продукти" за такою адресою:
 
-https://api.local/api/product
+https://api.local/api/products
 
 Стандартні маршрути для API такі:
 
- Name _______________ Method ____Scheme __ Host __ Path
-
-product_index _______ GET ________ ANY _____ ANY __   /api/product                         
-product_create ______ POST _______ ANY _____ ANY __   /api/product                         
-product_show ________ GET ________ ANY _____ ANY __   /api/product/{id}                    
-product_update ______ PUT|PATCH __ ANY _____ ANY __   /api/product/{id}                    
-product_delete ______ DELETE _____ ANY ______ ANY __   /api/product/{id}
+список усіх - (метод GET)  /api/products      
+перегляд одного - (метод GET)  /api/products/Id_номер_продукта      
+створення нового - (метод POST) /api/products                          
+модифікація одного - (метод PUT|PATCH) /api/products/Id_номер_продукта                       
+видалення - (метод DELETE) /api/products/Id_номер_продукта
  ---
+    Реалізовано: пагінована відповідь із продуктами, що відповідають умовам фільтрації.
 
-![VideoManual](manuals%2FSetup_&_Run.mp4)
+Як використовувати API-фільтри
 
+Після додавання фільтрів до вашого ресурсу, ви можете використовувати їх у запитах:
+
+# Приклади запитів:
+
+    Фільтрація за назвою (часткове співпадіння):
+
+GET /api/products?title=phone
+
+    Фільтрація за кількістю (мінімум 10):
+
+GET /api/products?quantity[gte]=10
+
+    Фільтрація за ціною (менше 500):
+
+GET /api/products?price[lte]=500
+
+    Комбінована фільтрація:
+
+GET /api/products?quantity[gte]=10&price[lte]=500&title=phone

@@ -2,7 +2,7 @@ api_platform:
     title: Products API Platform
     version: 1.0.0
     formats:
-        json: ['application/json']
+        json: ['application/json', 'application/merge-patch+json']
         jsonld: ['application/ld+json']
     docs_formats:
         json: ['application/json']
